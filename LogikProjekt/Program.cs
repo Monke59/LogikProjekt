@@ -45,10 +45,8 @@ namespace LogikProjekt
             }
             Console.ReadLine();
             Console.Clear();
-
-
-
         }
+
         static string ShowMainMenu(bool mistake)
             /*metoda zobrazí hlavní nabídku menu*/
         {
@@ -56,12 +54,11 @@ namespace LogikProjekt
             Console.WriteLine(); //pro lepsi vyhled jedno odradkovani
             Console.WriteLine("\n\n\t\t1. New game");
             Console.WriteLine("\t\t2. Load"); // nahraje ze slozky posledni ulozenou hru
-            Console.WriteLine("\t\t3. Scoreboard"); // ukaze 10 nejlepsich !ulozenych! her
+            Console.WriteLine("\t\t3. Scoreboard"); // ukaze 10 nejlepsich zapsanych her
             Console.WriteLine("\t\t4. Game rules"); // vysvetli hru
             Console.WriteLine("\t\t5. End program");
-            //Console.Write("\n\n");
-            Console.WriteLine("\n\n\t\tType number [1-4] or the name of your choice.");
-            if (mistake == true) Console.WriteLine("\n\t\tInput invalid. Please try again."); //says when player has wrong input
+            Console.WriteLine("\n\n\t\tType number [1-5] or the name of your choice.");
+            if (mistake == true) Console.WriteLine("\n\t\tInput invalid. Please try again."); //řekne hráči pokud má špatný vstup
             ret = Console.ReadLine();
             return ret;
         }
@@ -101,7 +98,7 @@ namespace LogikProjekt
             /*slouží jen na zobrazení pravidel hry mastermind*/
         {
             Console.Clear();
-            Console.WriteLine("In this version of Mastermind you are trying to guess number code instead of colours. In other words, colours are represented by a number");
+            Console.WriteLine("In this version of Mastermind you are trying to guess number code instead of colours. In other words, colours are represented by a number.");
             Console.WriteLine("there are 8 numbers(colours) [1 - 8]. The numbers in code do not duplicate.");
             Console.WriteLine("There are 10 rounds. In each round you write your guess. The guess is 5 digit number. Order of numbers is important!");
             Console.WriteLine("After writing your guess the game evaluates your code with 0 or W or B. The evaluation is shown in the left side next to your guess.");
@@ -109,8 +106,12 @@ namespace LogikProjekt
             Console.WriteLine("For each number you wrote and is in the code, just not in the same place there will be evaluation 'W'.");
             Console.WriteLine("For each number you wrote but is not in the code at all, there will be evaluation '0'.");
             Console.WriteLine("After 10 rounds or after you make right guess the \"?????\" will show the right code instead of question marks.");
-            Console.WriteLine("during the game you can enter \"save\" instead of 5 digit nuber which saves your game");
-            Console.WriteLine("There is only one save slot so be careful.");
+            Console.WriteLine();
+            Console.WriteLine("During the game you can enter \"save\" instead of 5 digit nuber, which lets you save your game.");
+            Console.WriteLine("There is only one save slot so saving overwrites any saved game.");
+            Console.WriteLine();
+            Console.WriteLine("If you manage to guess the code successefully and win. The game will ask if you wish to save your score (score means number of rounds).");
+            Console.WriteLine("In scoreboard are 10 players with the best score. Even if you chose to save your score, you may not make it to scoreboard");
             Console.WriteLine("\npress enter to return to main menu");
             Console.ReadLine();
         }
@@ -149,7 +150,6 @@ namespace LogikProjekt
                 Console.Clear();
                 Console.WriteLine();
                 ShowGrid(gameEnd, code, savedGuesses, evaluation);
-
                 if (wrongInput) Console.WriteLine("Wrong Input. Please enter 5 digits in range of 1 to 8");
                 if (gameEnd)
                 {
@@ -171,7 +171,8 @@ namespace LogikProjekt
                 {
                     break;
                 }
-                /*pro debugging hry nebo podvod*/
+                /*pro kontrolu kódu během hry
+                 * pro zjištění jestli kód generuje a ohodnocuje správně*/
                 Console.Write("psst, the code is: ");
                 for(int k = 0; k < 5; k++)
                 {
@@ -185,7 +186,7 @@ namespace LogikProjekt
                 {
                     if (save)
                     {
-                        if (SaveGameToFile(round, code, savedGuesses, evaluation))
+                        if (SaveGameToFile(round, code, savedGuesses, evaluation))//vrací true pokud hráč chce uložit
                         {
                             return;
                         }
@@ -196,7 +197,7 @@ namespace LogikProjekt
                             continue;
                         }
                     }
-                    RoundEvaluation(ref gameEnd, round, playerInput, ref savedGuesses, ref evaluation, code);
+                    RoundEvaluation(ref gameEnd, round, playerInput, ref savedGuesses, ref evaluation, code);// ohodnocení, hlavní mechanika hry
                 }
                 else
                 {
@@ -230,11 +231,11 @@ namespace LogikProjekt
             Console.WriteLine();
             if (!gameVictory) //na konci hry zajistí aby se kód odhalil hráči
             {
-                Console.Write("{0, 18}\n", "?????");
+                Console.Write("\t{0, 18}\n", "?????");
             }
             else
             {
-                Console.Write("{0, 14}", code[0]);
+                Console.Write("\t{0, 14}", code[0]);
                 for (int i = 1; i < 5; i++)
                 {
                     Console.Write(code[i]);
@@ -244,7 +245,7 @@ namespace LogikProjekt
 
             for (int i = 0; i < 10; i++) //10 radku se hrou
             {
-                Console.Write("{0, 2}.| ", i + 1); //očíslování řádku
+                Console.Write("\t{0, 2}.| ", i + 1); //očíslování řádku
                 for (int j = 0; j < 5; j++)
                 {
                     Console.Write(evaluation[i, j]); //pole s W/B ohodnocením
@@ -261,14 +262,12 @@ namespace LogikProjekt
 
         static bool PlayerInputIsCorrect(string playerInput, ref bool save)
         {
-            int number;
-
+            int number;//jen pro out u TryParse, není využito
             if(playerInput == "save")
             {
                 save = true;
                 return true;
             }
-
             if (playerInput.Length != 5) return false;
             if(Int32.TryParse(playerInput, out number))
             {
@@ -281,7 +280,6 @@ namespace LogikProjekt
             {
                 return false;
             }
-
             return true;
         }
 
@@ -292,7 +290,7 @@ namespace LogikProjekt
             char[] colours = new char[5]; //na převod code do charu
             int blackPin = 0; //na uhádnutí barvy na správném místě
             int whitePin = 0; //uhádnutí barvy ale se špatným umístěním
-            for(int i = 0; i < 5; i++)
+            for(int i = 0; i < 5; i++)//cyklus pro připočtení kolíčků (pinů)
             {
                 savedGuesses[round, i] = playerInput[i]; //převede číselnou hodnotu na char pro výpis
                 for(int j = 0; j < 5; j++)// projede číslo od hráče a porovná s kódem
@@ -315,21 +313,21 @@ namespace LogikProjekt
             {
                 gameVictory = true;
             }
-            for (int i = 4; i >= 0; i--) //naplní pole s ohodnocením W/B
+            for (int i = 4; i >= 0; i--) //naplní pole s ohodnocením W/B/0
             {
                 if (blackPin > 0)
                 {
                     blackPin--;
-                    evaluation[round, i] = 'B';
+                    evaluation[round, i] = 'B';//"trefa"
                     continue;
                 }
                 if(whitePin > 0)
                 {
                     whitePin--;
-                    evaluation[round, i] = 'W';
+                    evaluation[round, i] = 'W';//"vedle"
                     continue;
                 }
-                evaluation[round, i] = '0';
+                evaluation[round, i] = '0';//"číslo není v kódu"
             }
 
         }
@@ -574,13 +572,13 @@ namespace LogikProjekt
                         Console.WriteLine("Sorry, you didn't make it to the scoreboard.");//ve score board jsou hry s lepšími score, takže se na něj hráč nedostal
                         return;
                     }
-                    for (int i = worstLine + 2; i < numOfNicknames * 2; i += 2)//cyklus vyřadí hráče s nejstarším a nejhorším score a posune zbytek hráčů pro logiku nejstaršího score
+                    for (int i = worstLine; i < (numOfNicknames * 2) - 2; i += 2)//cyklus vyřadí hráče s nejstarším a nejhorším score a posune zbytek hráčů pro logiku nejstaršího score
                     {
-                        lines[i - 2] = lines[i];
-                        lines[(i + 1) - 2] = lines[i + 1];
+                        lines[i] = lines[i + 2];
+                        lines[i + 1] = lines[i + 3];
                     }
-                    lines[(numOfNicknames * 2) - 1] = nickname;//poslední uvolněné místo připadne novému hráči
-                    lines[numOfNicknames * 2] = "" + round;//převede int round na string a zapíše do souboru
+                    lines[(numOfNicknames * 2) - 2] = nickname;//poslední uvolněné místo připadne novému hráči
+                    lines[(numOfNicknames * 2) - 1] = "" + round;//převede int round na string a zapíše do souboru
 
                     StreamWriter scoreBoard = new StreamWriter("scoreboard", false);
                     for(int i = 0; i < numOfNicknames * 2; i++)
@@ -600,34 +598,37 @@ namespace LogikProjekt
             metoda se StreamReader*/
         {
             Console.Clear();
-            if (!File.Exists("scoreboard"))
+            if (!File.Exists("scoreboard"))//kontrola existence souboru
             {
                 Console.WriteLine("\t\tthere are no players in scoreboard yet\n");
                 Console.WriteLine("\t\tpress enter to return to main menu");
                 Console.ReadLine();
                 return;
             }
-            StreamReader scoreBoard = new StreamReader("scoreboard", false);
+
+            StreamReader scoreBoard = new StreamReader("scoreboard", false);// pro zjištění počtu řádků v souboru
             int numOfLines = 0;
             while(scoreBoard.ReadLine() != null)
             {
                 numOfLines++;
             }
             scoreBoard.Close();
-            StreamReader scoreBoard1 = new StreamReader("scoreboard", false);
+
+            StreamReader scoreBoard1 = new StreamReader("scoreboard", false);//pro přečtení řádků ze souboru a uložení do proměnné
             string[] lines = new string[numOfLines];
             for(int i = 0; i < numOfLines; i++)
             {
                 lines[i] = scoreBoard1.ReadLine();
             }
             scoreBoard1.Close();
-            string[] sortedLines = new string[numOfLines];
+
+            string[] sortedLines = new string[numOfLines];//proměná pro seřazení řádků podle scóre
             int order = 0;
             for (int i = 1; i < 11; i++ )//seřadí hráče podle scóre
             {
                 for (int j = 1; j < numOfLines; j += 2)//číslo na každém druhém řádku
                 {
-                    if(Int16.Parse(lines[j]) == i)
+                    if(Int16.Parse(lines[j]) == i)//seřadí od nejlepšího scóre
                     {
                         sortedLines[order] = lines[j - 1];
                         sortedLines[order + 1] = lines[j];
@@ -636,14 +637,14 @@ namespace LogikProjekt
                 }
 
             }
+
             Console.Write("{0, 11} |{1, 7}\n", "nickname", "rounds");
-            for(int i = 0; i < numOfLines; i++)
+            for(int i = 0; i < numOfLines; i++)//vypíše seřazenou tabulku scoreboard
             {
                 Console.Write("{0, 11} |", sortedLines[i]);
                 i++;
                 Console.Write("{0, 2}\n", sortedLines[i]);
             }
-            //Console.Write("{0, 2}.| ", i + 1);
             Console.WriteLine("\npress enter to return to main menu");
             Console.ReadLine();
         }
