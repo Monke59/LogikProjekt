@@ -150,7 +150,11 @@ namespace LogikProjekt
                 Console.Clear();
                 Console.WriteLine();
                 ShowGrid(gameEnd, code, savedGuesses, evaluation);
-                if (wrongInput) Console.WriteLine("Wrong Input. Please enter 5 digits in range of 1 to 8");
+                if (wrongInput)
+                {
+                    Console.WriteLine("Wrong Input. Please enter 5 digits in range of 1 to 8");
+                    wrongInput = false;
+                }
                 if (gameEnd)
                 {
                     round--; //aby se round nastavilo na kolo kde hráč uhádl
