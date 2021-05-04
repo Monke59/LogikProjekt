@@ -160,7 +160,7 @@ namespace LogikProjekt
                     round--; //aby se round nastavilo na kolo kde hráč uhádl
                     if(round == 0) //i tose může stát
                     {
-                        Console.WriteLine("You just won a 1 to 6720 lottery... Could you try again so my programing isn't skipped by your luck? ...Thanks");
+                        Console.WriteLine("You just won a 1 to 6720 lottery\n...Could you try again so my programing isn't skipped by your luck?\n...Thanks");
                     }
                     else
                     {
@@ -176,13 +176,13 @@ namespace LogikProjekt
                     break;
                 }
                 /*pro kontrolu kódu během hry
-                 * pro zjištění jestli kód generuje a ohodnocuje správně*/
+                 * pro zjištění jestli kód generuje a ohodnocuje správně
                 Console.Write("psst, the code is: ");
                 for(int k = 0; k < 5; k++)
                 {
                     Console.Write(code[k]);
                 }
-                
+                */
                 Console.WriteLine();
                 playerInput = Console.ReadLine();
 
@@ -426,7 +426,11 @@ namespace LogikProjekt
                 Console.WriteLine();
                 ShowGrid(gameEnd, code, savedGuesses, evaluation);
 
-                if (wrongInput) Console.WriteLine("Wrong Input. Please enter 5 digits in range of 1 to 8");
+                if (wrongInput)
+                {
+                    Console.WriteLine("Wrong Input. Please enter 5 digits in range of 1 to 8");
+                    wrongInput = false;
+                }
                 if (gameEnd)
                 {
                     round--; //aby se round nastavilo na kolo kde hráč uhádl
